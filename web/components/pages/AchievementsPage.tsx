@@ -1,9 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import PageWrapper from '../layout/PageWrapper';
 import SectionHeader from '../ui/SectionHeader';
 import { MOCK_ACHIEVEMENTS } from '../../constants';
 import { Achievement } from '../../types';
 import useOnScreen from '../hooks/useOnScreen';
+import { sanityClient } from '../../lib/sanity.client';
+import { ACHIEVEMENTS } from '../../lib/queries';
+import { urlFor } from '../../lib/image';
 
 const AchievementCard: React.FC<{ achievement: Achievement }> = ({ achievement }) => {
   return (
@@ -23,15 +26,37 @@ const AchievementCard: React.FC<{ achievement: Achievement }> = ({ achievement }
 };
 
 const AchievementsPage: React.FC = () => {
+  const [items, setItems] = useState<Achievement[] | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const isVisible = useOnScreen(ref);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await sanityClient.fetch<any[]>(ACHIEVEMENTS);
+        if (cancelled) return;
+        const mapped: Achievement[] = (res || []).map((a, i) => ({
+          id: i + 1,
+          title: a.title || 'Achievement',
+          description: a.description || '',
+          imageUrl: a.image ? urlFor(a.image).width(800).height(480).fit('crop').url() : 'https://picsum.photos/800/480?random=77',
+          date: a.date ? new Date(a.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long' }) : '',
+        }));
+        setItems(mapped);
+      } catch {
+        setItems(null);
+      }
+    })();
+    return () => { cancelled = true };
+  }, []);
 
   return (
     <PageWrapper>
       <SectionHeader title="Achievements" subtitle="Highlights of our milestones and recognitions" />
       <section ref={ref} className={`${isVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {MOCK_ACHIEVEMENTS.map((a) => (
+          {(items || MOCK_ACHIEVEMENTS).map((a) => (
             <AchievementCard key={a.id} achievement={a} />
           ))}
         </div>

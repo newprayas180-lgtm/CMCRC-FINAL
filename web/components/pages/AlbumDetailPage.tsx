@@ -1,12 +1,44 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import PageWrapper from '../layout/PageWrapper';
 import { MOCK_GALLERY_ALBUMS } from '../../constants';
 import useOnScreen from '../hooks/useOnScreen';
+import { sanityClient } from '../../lib/sanity.client';
+import { ALBUM_BY_SLUG } from '../../lib/queries';
+import { urlFor } from '../../lib/image';
 
 const AlbumDetailPage: React.FC = () => {
   const { albumId } = useParams<{ albumId: string }>();
-  const album = MOCK_GALLERY_ALBUMS.find(a => a.id === parseInt(albumId || ''));
+  const [album, setAlbum] = useState<any | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!albumId) return;
+      const numericId = Number(albumId);
+      if (!Number.isNaN(numericId)) {
+        const mock = MOCK_GALLERY_ALBUMS.find(a => a.id === numericId);
+        setAlbum(mock || null);
+        return;
+      }
+      try {
+        const res = await sanityClient.fetch<any>(ALBUM_BY_SLUG, { slug: albumId });
+        if (cancelled) return;
+        if (res) {
+          setAlbum({
+            id: res.slug?.current || 1,
+            title: res.title || 'Album',
+            images: Array.isArray(res.images) ? res.images.map((img: any, idx: number) => ({ id: idx + 1, imageUrl: urlFor(img).width(1400).height(900).fit('max').url(), caption: img.caption })) : [],
+          });
+        } else {
+          setAlbum(null);
+        }
+      } catch {
+        setAlbum(null);
+      }
+    })();
+    return () => { cancelled = true };
+  }, [albumId]);
 
   const gridRef = useRef<HTMLDivElement>(null);
   const isGridVisible = useOnScreen(gridRef);
