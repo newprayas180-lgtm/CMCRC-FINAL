@@ -1,0 +1,32 @@
+{
+  "name": "chittagong-medical-college-research-club",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "studio": "sanity dev --cwd studio",
+    "build:studio": "sanity build --cwd studio",
+    "deploy:studio": "sanity deploy --cwd studio"
+  },
+  "dependencies": {
+    "@sanity/client": "^6.21.3",
+    "@sanity/image-url": "^1.0.2",
+    "groq": "^3.48.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-is": "^18.3.1",
+    "react-router-dom": "^7.9.1",
+    "styled-components": "^6.1.19"
+  },
+  "devDependencies": {
+    "@sanity/vision": "^3.44.0",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "sanity": "^3.44.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
