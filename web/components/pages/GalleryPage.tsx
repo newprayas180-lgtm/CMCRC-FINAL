@@ -41,7 +41,15 @@ const GalleryPage: React.FC = () => {
             id: i + 1,
             title: a.title || 'Album',
             coverImageUrl: a.coverImage ? urlFor(a.coverImage).width(800).height(800).fit('crop').url() : 'https://picsum.photos/800/800?random=88',
-            images: Array.isArray(a.images) ? a.images.map((img: any, idx: number) => ({ id: idx + 1, imageUrl: urlFor(img).width(1200).height(800).fit('max').url(), caption: img.caption })) : [],
+            images: Array.isArray(a.images)
+              ? a.images
+                  .filter((img: any) => !!img)
+                  .map((img: any, idx: number) => ({
+                      id: idx + 1,
+                      imageUrl: urlFor(img).width(1400).height(900).fit('max').url(),
+                      caption: (img as any).caption,
+                  }))
+              : [],
             slug: a.slug?.current,
           }));
           setAlbums(mapped);

@@ -78,7 +78,13 @@ const OurTeamPage: React.FC = () => {
     }, {} as Record<string, TeamMember[]>);
   }, [members]);
 
-  const teamOrder = ['Core Team', 'Visibility Team', 'Social Media Team'];
+  // Default order, then append any additional categories returned by CMS
+  const defaultOrder = ['Core Team', 'Visibility Team', 'Social Media Team', 'Research Team', 'Operations Team'];
+  const dynamicCategories = useMemo(() => Object.keys(teams), [teams]);
+  const teamOrder = useMemo(() => {
+    const extras = dynamicCategories.filter((c) => !defaultOrder.includes(c));
+    return [...defaultOrder, ...extras];
+  }, [dynamicCategories]);
 
   return (
     <PageWrapper>

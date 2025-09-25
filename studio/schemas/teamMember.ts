@@ -19,7 +19,23 @@ export default defineType({
       ] }],
     }),
     defineField({ name: 'order', type: 'number', initialValue: 0 }),
-    defineField({ name: 'category', type: 'string' }),
+    defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      initialValue: 'Core Team',
+      options: {
+        list: [
+          { title: 'Core Team', value: 'Core Team' },
+          { title: 'Visibility Team', value: 'Visibility Team' },
+          { title: 'Social Media Team', value: 'Social Media Team' },
+          { title: 'Research Team', value: 'Research Team' },
+          { title: 'Operations Team', value: 'Operations Team' },
+        ],
+        layout: 'radio',
+      },
+      description: 'Pick one of the predefined teams to keep naming consistent on the website.',
+    }),
   ],
   orderings: [
     { name: 'orderAsc', title: 'Order asc', by: [{ field: 'order', direction: 'asc' }] },

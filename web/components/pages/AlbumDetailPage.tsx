@@ -28,7 +28,15 @@ const AlbumDetailPage: React.FC = () => {
           setAlbum({
             id: res.slug?.current || 1,
             title: res.title || 'Album',
-            images: Array.isArray(res.images) ? res.images.map((img: any, idx: number) => ({ id: idx + 1, imageUrl: urlFor(img).width(1400).height(900).fit('max').url(), caption: img.caption })) : [],
+            images: Array.isArray(res.images)
+              ? res.images
+                  .filter((img: any) => !!img)
+                  .map((img: any, idx: number) => ({
+                      id: idx + 1,
+                      imageUrl: urlFor(img).width(1600).height(1000).fit('max').url(),
+                      caption: (img as any).caption,
+                  }))
+              : [],
           });
         } else {
           setAlbum(null);
