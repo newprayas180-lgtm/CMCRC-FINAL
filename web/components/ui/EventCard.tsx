@@ -7,9 +7,9 @@ interface EventCardProps {
 
 const EventCard: React.FC<EventCardProps> = ({ event }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group transition-all hover:shadow-xl hover:-translate-y-1">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group transition-all hover:shadow-xl hover:-translate-y-1 w-full max-w-md">
       <div className="relative">
-        <img className="h-56 w-full object-cover" src={event.imageUrl} alt={event.title} />
+        <img className="h-64 w-full object-cover" src={event.imageUrl} alt={event.title} />
         <div className="absolute top-0 right-0 mt-4 mr-4 px-3 py-1 text-sm font-semibold rounded-full bg-white/80 backdrop-blur-sm text-slate-800 shadow-sm">
           {event.date}
         </div>

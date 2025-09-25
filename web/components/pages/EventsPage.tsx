@@ -55,7 +55,7 @@ const EventsPage: React.FC = () => {
       <div ref={contentRef} className={`${isContentVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Upcoming Events</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
             {upcomingEvents.length > 0 ? (
               upcomingEvents.map(event => <EventCard key={event.id} event={event} />)
             ) : (
@@ -66,7 +66,7 @@ const EventsPage: React.FC = () => {
 
         <section>
           <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Past Events</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
             {pastEvents.length > 0 ? (
               pastEvents.slice(0, 3).map(event => <EventCard key={event.id} event={event} />)
             ) : (

@@ -91,7 +91,7 @@ const HomePage: React.FC = () => {
           <div className="mb-8">
           <Button to="/about">Learn more about us</Button>
           </div>
-          <div className="rounded-lg overflow-hidden shadow-xl">
+          <div className="rounded-lg overflow-hidden shadow-xl max-w-xl mx-auto">
             <img src={homeImage || 'https://picsum.photos/1000/600?random=about'} alt="Team collaborating" className="w-full h-auto" />
           </div>
         </div>
@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
         <p className="text-lg md:text-xl text-slate-600 mb-6">Join us for our next workshop, seminar, or meeting.</p>
         <Button to="/events">View All Events</Button>
       </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className={`${upcomingEvents.length === 1 ? 'grid grid-cols-1 place-items-center' : 'grid md:grid-cols-2 lg:grid-cols-3'} gap-10 max-w-6xl mx-auto justify-items-center`}>
               {upcomingEvents.map(event => (
                 <EventCard key={event.id} event={event} />
               ))}
