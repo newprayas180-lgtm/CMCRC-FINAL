@@ -44,6 +44,18 @@ const EventsPage: React.FC = () => {
 
   const upcomingEvents = useMemo(() => (events || MOCK_EVENTS).filter(e => e.status === EventStatus.Upcoming), [events]);
   const pastEvents = useMemo(() => (events || MOCK_EVENTS).filter(e => e.status === EventStatus.Past), [events]);
+  const upcomingGridClass = useMemo(() => {
+    const c = upcomingEvents.length;
+    if (c <= 1) return 'grid grid-cols-1 place-items-center gap-10 max-w-md mx-auto';
+    if (c === 2) return 'grid grid-cols-1 md:grid-cols-2 place-items-center gap-10 max-w-4xl mx-auto';
+    return 'grid md:grid-cols-2 lg:grid-cols-3 place-items-center gap-10 max-w-6xl mx-auto';
+  }, [upcomingEvents.length]);
+  const pastGridClass = useMemo(() => {
+    const c = pastEvents.length;
+    if (c <= 1) return 'grid grid-cols-1 place-items-center gap-10 max-w-md mx-auto';
+    if (c === 2) return 'grid grid-cols-1 md:grid-cols-2 place-items-center gap-10 max-w-4xl mx-auto';
+    return 'grid md:grid-cols-2 lg:grid-cols-3 place-items-center gap-10 max-w-6xl mx-auto';
+  }, [pastEvents.length]);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const isContentVisible = useOnScreen(contentRef);
@@ -55,7 +67,7 @@ const EventsPage: React.FC = () => {
       <div ref={contentRef} className={`${isContentVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Upcoming Events</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+          <div className={upcomingGridClass}>
             {upcomingEvents.length > 0 ? (
               upcomingEvents.map(event => <EventCard key={event.id} event={event} />)
             ) : (
@@ -66,7 +78,7 @@ const EventsPage: React.FC = () => {
 
         <section>
           <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Past Events</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+          <div className={pastGridClass}>
             {pastEvents.length > 0 ? (
               pastEvents.slice(0, 3).map(event => <EventCard key={event.id} event={event} />)
             ) : (

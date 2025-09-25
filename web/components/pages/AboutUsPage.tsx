@@ -103,7 +103,7 @@ const AboutUsPage: React.FC = () => {
       </div>
 
       <div ref={teamRef} className={`text-center ${isTeamVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
-        <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Meet Our Core Team</h2>
+        <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Meet Our Team</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 max-w-5xl mx-auto">
             {coreTeam.map(member => (
                 <TeamMemberCard key={member.id} member={member} />

@@ -56,6 +56,12 @@ const PublicationsPage: React.FC = () => {
     }, []);
 
     const recentAchievements = useMemo(() => (achs || MOCK_ACHIEVEMENTS).slice(0, 3), [achs]);
+    const achievementsGridClass = useMemo(() => {
+      const c = recentAchievements.length;
+      if (c <= 1) return 'grid grid-cols-1 place-items-center gap-8 max-w-md mx-auto';
+      if (c === 2) return 'grid grid-cols-1 md:grid-cols-2 place-items-center gap-8 max-w-4xl mx-auto';
+      return 'grid md:grid-cols-2 lg:grid-cols-3 place-items-center gap-8 max-w-6xl mx-auto';
+    }, [recentAchievements.length]);
     const recentPublications = useMemo(() => (pubs || MOCK_PUBLICATIONS).slice(0, 2), [pubs]);
 
 
@@ -66,7 +72,7 @@ const PublicationsPage: React.FC = () => {
       <div>
         <section ref={achievementsRef} className={`mb-20 ${isAchievementsVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
           <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Recent Achievements</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+          <div className={achievementsGridClass}>
               {recentAchievements.map(achievement => (
                 <AchievementCard key={achievement.id} achievement={achievement} />
               ))}
@@ -78,7 +84,7 @@ const PublicationsPage: React.FC = () => {
 
         <section ref={publicationsRef} className={`${isPublicationsVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
           <h2 className="text-3xl font-bold text-center text-slate-800 mb-12">Recent Publications</h2>
-          <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8">
               {recentPublications.map(publication => (
                   <PublicationCard key={publication.id} publication={publication} />
               ))}

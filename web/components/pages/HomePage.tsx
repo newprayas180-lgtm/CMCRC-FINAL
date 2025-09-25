@@ -61,6 +61,12 @@ const HomePage: React.FC = () => {
   }, []);
 
   const upcomingEvents = useMemo(() => (events || MOCK_EVENTS).filter(e => e.status === EventStatus.Upcoming).slice(0, 3), [events]);
+  const upcomingGridClass = useMemo(() => {
+    const count = upcomingEvents.length;
+    if (count <= 1) return 'grid grid-cols-1 place-items-center gap-10 max-w-md mx-auto';
+    if (count === 2) return 'grid grid-cols-1 md:grid-cols-2 place-items-center gap-10 max-w-4xl mx-auto';
+    return 'grid md:grid-cols-2 lg:grid-cols-3 place-items-center gap-10 max-w-6xl mx-auto';
+  }, [upcomingEvents.length]);
   
   const heroRef = useRef<HTMLDivElement>(null);
   const isHeroVisible = useOnScreen(heroRef);
@@ -103,7 +109,7 @@ const HomePage: React.FC = () => {
         <p className="text-lg md:text-xl text-slate-600 mb-6">Join us for our next workshop, seminar, or meeting.</p>
         <Button to="/events">View All Events</Button>
       </div>
-            <div className={`${upcomingEvents.length === 1 ? 'grid grid-cols-1 place-items-center' : 'grid md:grid-cols-2 lg:grid-cols-3'} gap-10 max-w-6xl mx-auto justify-items-center`}>
+            <div className={upcomingGridClass}>
               {upcomingEvents.map(event => (
                 <EventCard key={event.id} event={event} />
               ))}
