@@ -1,12 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../layout/PageWrapper';
 import Button from '../ui/Button';
 import { MOCK_EVENTS } from '../../constants';
 import EventCard from '../ui/EventCard';
 import SectionHeader from '../ui/SectionHeader';
-import { EventStatus } from '../../types';
+import { Event, EventStatus } from '../../types';
 import useOnScreen from '../hooks/useOnScreen';
+import { sanityClient } from '../../lib/sanity.client';
+import { EVENTS } from '../../lib/queries';
+import { urlFor } from '../../lib/image';
 
 const AnimatedSection: React.FC<{children: React.ReactNode, className?: string}> = ({ children, className }) => {
     const ref = useRef<HTMLDivElement>(null);
@@ -20,7 +23,37 @@ const AnimatedSection: React.FC<{children: React.ReactNode, className?: string}>
 };
 
 const HomePage: React.FC = () => {
-  const upcomingEvents = MOCK_EVENTS.filter(event => event.status === EventStatus.Upcoming).slice(0, 3);
+  const [events, setEvents] = useState<Event[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await sanityClient.fetch<any[]>(EVENTS);
+        if (cancelled) return;
+        const mapped: Event[] = (data || []).map((e) => {
+          const start = e.startDate ? new Date(e.startDate) : null;
+          const isUpcoming = start ? start.getTime() >= Date.now() : false;
+          const imageUrl = e.coverImage ? urlFor(e.coverImage).width(800).height(450).fit('crop').url() : 'https://picsum.photos/800/450?random=100';
+          return {
+            id: e._id ? Number.parseInt(String(Math.abs(hashCode(e._id))).slice(0, 9)) : Math.floor(Math.random() * 1e9),
+            title: e.title || 'Untitled event',
+            date: start ? start.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA',
+            location: [e.venue, e.city].filter(Boolean).join(', ') || 'TBA',
+            description: e.description ? ' ' : 'Details coming soon.',
+            imageUrl,
+            status: isUpcoming ? EventStatus.Upcoming : EventStatus.Past,
+          } as Event;
+        });
+        setEvents(mapped);
+      } catch {
+        setEvents(null);
+      }
+    })();
+    return () => { cancelled = true };
+  }, []);
+
+  const upcomingEvents = useMemo(() => (events || MOCK_EVENTS).filter(e => e.status === EventStatus.Upcoming).slice(0, 3), [events]);
   
   const heroRef = useRef<HTMLDivElement>(null);
   const isHeroVisible = useOnScreen(heroRef);
@@ -85,3 +118,13 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
+// Simple string hash for stable numeric IDs from Sanity _id (only for client keys)
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}

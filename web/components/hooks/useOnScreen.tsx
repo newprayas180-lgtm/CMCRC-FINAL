@@ -8,14 +8,20 @@ interface UseOnScreenOptions {
 const useOnScreen = (ref: RefObject<HTMLElement>, options: UseOnScreenOptions = { threshold: 0.1, rootMargin: '0px' }): boolean => {
   const [isIntersecting, setIntersecting] = useState(false);
 
+  // Re-observe whenever the actual DOM node appears/changes
+  const target = ref.current;
   useEffect(() => {
+    if (typeof window !== 'undefined' && !(window as any).IntersectionObserver) {
+      // No IO support; don't hide anything
+      setIntersecting(true);
+      return;
+    }
+    if (!target) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIntersecting(true);
-          if (ref.current) {
-            observer.unobserve(ref.current);
-          }
+          observer.unobserve(entry.target);
         }
       },
       {
@@ -24,17 +30,10 @@ const useOnScreen = (ref: RefObject<HTMLElement>, options: UseOnScreenOptions = 
       }
     );
 
-    const currentRef = ref.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [ref, options.rootMargin, options.threshold]);
+    observer.observe(target);
+    return () => observer.unobserve(target);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, options.rootMargin, options.threshold]);
 
   return isIntersecting;
 };

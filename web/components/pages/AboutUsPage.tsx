@@ -1,10 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import PageWrapper from '../layout/PageWrapper';
 import SectionHeader from '../ui/SectionHeader';
 import { MOCK_TEAM_MEMBERS } from '../../constants';
 import { TeamMember } from '../../types';
 import Button from '../ui/Button';
 import useOnScreen from '../hooks/useOnScreen';
+import { sanityClient } from '../../lib/sanity.client';
+import { TEAM } from '../../lib/queries';
+import { urlFor } from '../../lib/image';
 
 const TeamMemberCard: React.FC<{ member: TeamMember }> = ({ member }) => (
     <div className="text-center">
@@ -15,7 +18,32 @@ const TeamMemberCard: React.FC<{ member: TeamMember }> = ({ member }) => (
 );
 
 const AboutUsPage: React.FC = () => {
-    const coreTeam = MOCK_TEAM_MEMBERS.filter(member => member.category === 'Core Team').slice(0, 4);
+    const [members, setMembers] = useState<TeamMember[] | null>(null);
+    useEffect(() => {
+      let cancelled = false;
+      (async () => {
+        try {
+          const data = await sanityClient.fetch<any[]>(TEAM);
+          if (cancelled) return;
+          const mapped: TeamMember[] = (data || []).map((m, idx) => ({
+            id: idx + 1,
+            name: m.name || 'Unnamed',
+            role: m.role || '',
+            imageUrl: m.photo ? urlFor(m.photo).width(300).height(300).fit('crop').url() : 'https://picsum.photos/200/200?random=42',
+            category: m.category || 'General',
+          }));
+          setMembers(mapped);
+        } catch {
+          setMembers(null);
+        }
+      })();
+      return () => { cancelled = true };
+    }, []);
+
+    const coreTeam = useMemo(
+      () => (members || MOCK_TEAM_MEMBERS).filter(member => member.category === 'Core Team').slice(0, 4),
+      [members]
+    );
 
     const whoWeAreRef = useRef<HTMLDivElement>(null);
     const visionMissionRef = useRef<HTMLDivElement>(null);
