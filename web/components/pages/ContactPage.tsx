@@ -1,11 +1,29 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PageWrapper from '../layout/PageWrapper';
 import SectionHeader from '../ui/SectionHeader';
 import useOnScreen from '../hooks/useOnScreen';
+import { sanityClient } from '../../lib/sanity.client';
+import { SITE_SETTINGS } from '../../lib/queries';
 
 const ContactPage: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const isContentVisible = useOnScreen(contentRef);
+  const [email, setEmail] = useState<string>('contact@cmcrc.org');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const settings = await sanityClient.fetch<{ contact?: { email?: string } } | null>(SITE_SETTINGS);
+        if (!cancelled) {
+          setEmail(settings?.contact?.email || 'contact@cmcrc.org');
+        }
+      } catch {
+        if (!cancelled) setEmail('contact@cmcrc.org');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <PageWrapper>
@@ -14,9 +32,9 @@ const ContactPage: React.FC = () => {
       <div ref={contentRef} className={`max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg ${isContentVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
         <h3 className="text-3xl font-bold text-slate-800 mb-6 text-center">Contact Information</h3>
         <div className="space-y-4 text-slate-700 text-center">
-          <div className="flex items-center justify-center space-x-4">
+      <div className="flex items-center justify-center space-x-4">
               <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-              <span>contact@cmcrc.org</span>
+        <a href={`mailto:${email}`} className="hover:underline text-blue-700">{email}</a>
           </div>
           <div className="flex items-center justify-center space-x-4">
               <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>

@@ -1,8 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PageWrapper from '../layout/PageWrapper';
 import SectionHeader from '../ui/SectionHeader';
 import Button from '../ui/Button';
 import useOnScreen from '../hooks/useOnScreen';
+import { sanityClient } from '../../lib/sanity.client';
+import { SITE_SETTINGS } from '../../lib/queries';
 
 const benefits = [
     {
@@ -45,6 +47,22 @@ const steps = [
 const MembershipPage: React.FC = () => {
     const contentRef = useRef<HTMLDivElement>(null);
     const isContentVisible = useOnScreen(contentRef);
+        const [applyUrl, setApplyUrl] = useState<string | undefined>();
+
+        useEffect(() => {
+            let cancelled = false;
+            (async () => {
+                try {
+                    const settings = await sanityClient.fetch<{ ctas?: { applyNowUrl?: string } } | null>(SITE_SETTINGS);
+                    if (!cancelled) {
+                        setApplyUrl(settings?.ctas?.applyNowUrl || undefined);
+                    }
+                } catch {
+                    if (!cancelled) setApplyUrl(undefined);
+                }
+            })();
+            return () => { cancelled = true; };
+        }, []);
 
   return (
     <PageWrapper>
@@ -92,9 +110,11 @@ const MembershipPage: React.FC = () => {
                     ))}
                 </div>
             </div>
-            <div className="mt-12 text-center">
-              <Button to="#" className="text-lg py-4 px-12">Apply Now</Button>
-            </div>
+                        {applyUrl && (
+                            <div className="mt-12 text-center">
+                                <Button to={applyUrl} className="text-lg py-4 px-12">Apply Now</Button>
+                            </div>
+                        )}
         </div>
       </div>
     </PageWrapper>
