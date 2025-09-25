@@ -82,11 +82,13 @@ const AlbumDetailPage: React.FC = () => {
             </Link>
         </div>
 
-        {album.images.length > 0 ? (
-            <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 ${isGridVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
-                {album.images.map(image => (
-                    <div key={image.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group transition-all hover:shadow-xl hover:-translate-y-1">
-                        <img src={image.imageUrl} alt={image.caption || `Image ${image.id} from ${album.title}`} className="w-full h-64 object-cover" />
+    {album.images.length > 0 ? (
+      <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeInUp`}>
+        {album.images.map(image => (
+          <div key={image.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group transition-all hover:shadow-xl hover:-translate-y-1">
+            <div className="bg-slate-200">
+              <img src={image.imageUrl} alt={image.caption || `Image ${image.id} from ${album.title}`} className="w-full h-64 object-cover" />
+            </div>
                         {image.caption && (
                             <div className="p-4 bg-slate-50 border-t border-slate-200">
                                 <p className="text-slate-700">{image.caption}</p>

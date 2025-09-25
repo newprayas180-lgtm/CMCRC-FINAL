@@ -63,7 +63,7 @@ const GalleryPage: React.FC = () => {
   return (
     <PageWrapper>
       <SectionHeader title="Event Gallery" subtitle="A Visual Journey" />
-      <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 ${isGridVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
+      <div ref={gridRef} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeInUp`}>
         {(albums || MOCK_GALLERY_ALBUMS).map(album => (
           <AlbumCard key={(album as any).slug || album.id} album={album as any} />
         ))}
