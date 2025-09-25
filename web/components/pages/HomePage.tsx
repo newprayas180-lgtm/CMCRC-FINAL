@@ -8,7 +8,7 @@ import SectionHeader from '../ui/SectionHeader';
 import { Event, EventStatus } from '../../types';
 import useOnScreen from '../hooks/useOnScreen';
 import { sanityClient } from '../../lib/sanity.client';
-import { EVENTS } from '../../lib/queries';
+import { EVENTS, SITE_SETTINGS } from '../../lib/queries';
 import { urlFor } from '../../lib/image';
 import logo from '@/ASSETS/logo.png';
 
@@ -25,12 +25,16 @@ const AnimatedSection: React.FC<{children: React.ReactNode, className?: string}>
 
 const HomePage: React.FC = () => {
   const [events, setEvents] = useState<Event[] | null>(null);
+  const [homeImage, setHomeImage] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const data = await sanityClient.fetch<any[]>(EVENTS);
+        const [data, settings] = await Promise.all([
+          sanityClient.fetch<any[]>(EVENTS),
+          sanityClient.fetch<any>(SITE_SETTINGS),
+        ]);
         if (cancelled) return;
         const mapped: Event[] = (data || []).map((e) => {
           const start = e.startDate ? new Date(e.startDate) : null;
@@ -46,7 +50,9 @@ const HomePage: React.FC = () => {
             status: isUpcoming ? EventStatus.Upcoming : EventStatus.Past,
           } as Event;
         });
-        setEvents(mapped);
+  setEvents(mapped);
+  const img = settings?.homeWhoWeAreImage ? urlFor(settings.homeWhoWeAreImage).width(1200).height(720).fit('crop').url() : null;
+  setHomeImage(img);
       } catch {
         setEvents(null);
       }
@@ -62,8 +68,8 @@ const HomePage: React.FC = () => {
   return (
     <>
       <div className="bg-white">
-        <div ref={heroRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center ${isHeroVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
-          <div className="mx-auto mb-8 w-80 h-80 md:w-90 md:h-90 rounded-full overflow-hidden shadow-2xl ring-4 ring-white/50 bg-white">
+        <div ref={heroRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-16 md:pb-20 text-center ${isHeroVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
+          <div className="mx-auto mb-6 md:mb-8 w-96 h-96 md:w-[26rem] md:h-[26rem] rounded-full overflow-hidden shadow-2xl ring-4 ring-white/50 bg-white">
             <img src={logo} alt="CMCRC Logo" className="w-full h-full object-contain p-3" />
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-800 mb-4">
@@ -76,28 +82,28 @@ const HomePage: React.FC = () => {
       </div>
       
       <PageWrapper>
-          <AnimatedSection className="mb-20">
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                  <div>
-                      <h2 className="text-4xl font-extrabold text-slate-800 mb-4">Who We Are</h2>
-                      <p className="text-slate-600 text-lg leading-relaxed mb-6">
-                          CMCRC is a community of passionate medical students and faculty advisors committed to advancing medical knowledge. We provide resources, mentorship, and a collaborative platform for students to engage in meaningful research projects that can make a difference.
-                      </p>
-                      <Button to="/about">Learn more about us</Button>
-                  </div>
-                  <div className="rounded-lg overflow-hidden shadow-xl">
-                      <img src="https://picsum.photos/600/400?random=about" alt="Team collaborating" />
-                  </div>
-              </div>
-          </AnimatedSection>
+      <AnimatedSection className="mb-20">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-4xl font-extrabold text-slate-800 mb-4">Who We Are</h2>
+          <p className="text-slate-600 text-lg leading-relaxed mb-6">
+            CMCRC is a community of passionate medical students and faculty advisors committed to advancing medical knowledge. We provide resources, mentorship, and a collaborative platform for students to engage in meaningful research projects that can make a difference.
+          </p>
+          <div className="mb-8">
+          <Button to="/about">Learn more about us</Button>
+          </div>
+          <div className="rounded-lg overflow-hidden shadow-xl">
+            <img src={homeImage || 'https://picsum.photos/1000/600?random=about'} alt="Team collaborating" className="w-full h-auto" />
+          </div>
+        </div>
+      </AnimatedSection>
 
-          <AnimatedSection className="mb-20">
-            <div className="mb-12 md:mb-16 text-left">
-                 <h2 className="text-4xl font-extrabold text-slate-800 mb-4">Upcoming Events</h2>
-                 <p className="text-lg md:text-xl text-slate-600 mb-6">Join us for our next workshop, seminar, or meeting.</p>
-                 <Button to="/events">View All Events</Button>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <AnimatedSection className="mb-20">
+      <div className="mb-12 md:mb-16 text-center">
+        <h2 className="text-4xl font-extrabold text-slate-800 mb-4">Upcoming Events</h2>
+        <p className="text-lg md:text-xl text-slate-600 mb-6">Join us for our next workshop, seminar, or meeting.</p>
+        <Button to="/events">View All Events</Button>
+      </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {upcomingEvents.map(event => (
                 <EventCard key={event.id} event={event} />
               ))}

@@ -1,6 +1,6 @@
 import groq from 'groq'
 
-export const SITE_SETTINGS = groq`*[_type == "siteSettings"][0]{siteTitle, logo, ctas, contact, social, defaultSeo}`
+export const SITE_SETTINGS = groq`*[_type == "siteSettings"][0]{siteTitle, logo{..., asset->}, homeWhoWeAreImage{..., asset->}, aboutWhoWeAreImage{..., asset->}, ctas, contact, social, defaultSeo}`
 export const NAV = groq`*[_type == "navigation" && !defined(footer)][0]{items}`
 export const FOOTER_NAV = groq`*[_type == "navigation" && footer == true][0]{items}`
 

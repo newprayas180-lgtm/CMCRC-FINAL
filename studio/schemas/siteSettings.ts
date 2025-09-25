@@ -7,6 +7,8 @@ export default defineType({
   fields: [
     defineField({ name: 'siteTitle', type: 'string', title: 'Site Title' }),
     defineField({ name: 'logo', type: 'image', title: 'Logo', options: { hotspot: true } }),
+    defineField({ name: 'homeWhoWeAreImage', type: 'image', title: 'Home: Who We Are Image', options: { hotspot: true } }),
+    defineField({ name: 'aboutWhoWeAreImage', type: 'image', title: 'About: Who We Are Image', options: { hotspot: true } }),
     defineField({
       name: 'ctas',
       title: 'Important Buttons / Links',

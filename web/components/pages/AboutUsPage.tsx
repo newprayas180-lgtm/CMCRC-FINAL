@@ -6,7 +6,7 @@ import { TeamMember } from '../../types';
 import Button from '../ui/Button';
 import useOnScreen from '../hooks/useOnScreen';
 import { sanityClient } from '../../lib/sanity.client';
-import { TEAM } from '../../lib/queries';
+import { SITE_SETTINGS, TEAM } from '../../lib/queries';
 import { urlFor } from '../../lib/image';
 
 const TeamMemberCard: React.FC<{ member: TeamMember }> = ({ member }) => (
@@ -19,11 +19,15 @@ const TeamMemberCard: React.FC<{ member: TeamMember }> = ({ member }) => (
 
 const AboutUsPage: React.FC = () => {
     const [members, setMembers] = useState<TeamMember[] | null>(null);
+    const [aboutImage, setAboutImage] = useState<string | null>(null);
     useEffect(() => {
       let cancelled = false;
       (async () => {
         try {
-          const data = await sanityClient.fetch<any[]>(TEAM);
+          const [data, settings] = await Promise.all([
+            sanityClient.fetch<any[]>(TEAM),
+            sanityClient.fetch<any>(SITE_SETTINGS),
+          ]);
           if (cancelled) return;
           const mapped: TeamMember[] = (data || []).map((m, idx) => ({
             id: idx + 1,
@@ -33,6 +37,8 @@ const AboutUsPage: React.FC = () => {
             category: m.category || 'General',
           }));
           setMembers(mapped);
+          const img = settings?.aboutWhoWeAreImage ? urlFor(settings.aboutWhoWeAreImage).width(800).height(800).fit('crop').url() : null;
+          setAboutImage(img);
         } catch {
           setMembers(null);
         }
@@ -69,8 +75,8 @@ const AboutUsPage: React.FC = () => {
                     </p>
                 </div>
             </div>
-            <div className="flex justify-center md:justify-end">
-                <img src="https://picsum.photos/id/1040/500/500" alt="A group of professionals in a discussion" className="rounded-full w-96 h-96 md:w-[480px] md:h-[480px] object-cover shadow-2xl border-8 border-white" />
+      <div className="flex justify-center md:justify-end">
+        <img src={aboutImage || 'https://picsum.photos/id/1040/500/500'} alt="A group of professionals in a discussion" className="rounded-full w-96 h-96 md:w-[480px] md:h-[480px] object-cover shadow-2xl border-8 border-white" />
             </div>
         </div>
       
