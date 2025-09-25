@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { sanityClient } from '../../lib/sanity.client';
+import { NAV, SITE_SETTINGS } from '../../lib/queries';
+import { urlFor } from '../../lib/image';
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -7,7 +10,8 @@ const Header: React.FC = () => {
   const location = useLocation();
   const aboutDropdownRef = useRef<HTMLDivElement>(null);
 
-  const navLinks = [
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [navLinks, setNavLinks] = useState<Array<{ name: string; path?: string; subLinks?: Array<{ name: string; path: string }> }>>([
     { name: 'Home', path: '/' },
     { name: 'About Us',
       subLinks: [
@@ -20,7 +24,7 @@ const Header: React.FC = () => {
     { name: 'Membership', path: '/membership' },
     { name: 'Gallery', path: '/gallery' },
     { name: 'Contact', path: '/contact' },
-  ];
+  ]);
 
   const linkClasses = "text-slate-700 hover:text-blue-600 transition-colors px-3 py-2 rounded-md font-medium";
   const activeLinkClasses = "text-blue-600 bg-blue-50";
@@ -41,14 +45,61 @@ const Header: React.FC = () => {
     };
   }, []);
 
+  // Fetch navigation + site settings (logo) with graceful fallback
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [nav, settings] = await Promise.all([
+          sanityClient.fetch<{ items?: Array<{ label: string; url: string }> } | null>(NAV),
+          sanityClient.fetch<{ logo?: any } | null>(SITE_SETTINGS),
+        ]);
+
+        if (!cancelled) {
+          if (settings?.logo) {
+            try {
+              const u = urlFor(settings.logo).width(140).height(40).fit('max').url();
+              setLogoUrl(u || null);
+            } catch {
+              setLogoUrl(null);
+            }
+          } else {
+            setLogoUrl(null);
+          }
+
+          if (nav?.items && nav.items.length > 0) {
+            const mapped = nav.items.map(i => ({ name: i.label, path: i.url }))
+            setNavLinks(prev => {
+              // Preserve the About dropdown if not present in CMS by merging minimally
+              const about = prev.find(p => p.subLinks);
+              if (about) {
+                return [about, ...mapped.filter(m => m.name !== 'About Us')];
+              }
+              return mapped;
+            });
+          }
+        }
+      } catch (e) {
+        // keep defaults
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
 
   return (
     <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold text-slate-800">
-              CMCRC
+            <Link to="/" className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Site logo" className="h-10 w-auto" />
+              ) : (
+                'CMCRC'
+              )}
             </Link>
           </div>
           <div className="hidden md:block">
