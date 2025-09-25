@@ -10,6 +10,7 @@ import useOnScreen from '../hooks/useOnScreen';
 import { sanityClient } from '../../lib/sanity.client';
 import { EVENTS } from '../../lib/queries';
 import { urlFor } from '../../lib/image';
+import logo from '@/ASSETS/logo.png';
 
 const AnimatedSection: React.FC<{children: React.ReactNode, className?: string}> = ({ children, className }) => {
     const ref = useRef<HTMLDivElement>(null);
@@ -62,8 +63,8 @@ const HomePage: React.FC = () => {
     <>
       <div className="bg-white">
         <div ref={heroRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center ${isHeroVisible ? 'animate-fadeInUp' : 'opacity-0'}`}>
-          <div className="mx-auto mb-8 w-40 h-40 md:w-48 md:h-48 bg-blue-600 rounded-full flex items-center justify-center shadow-2xl">
-            <span className="text-white text-4xl md:text-5xl font-bold tracking-wider">CMCRC</span>
+          <div className="mx-auto mb-8 w-80 h-80 md:w-90 md:h-90 rounded-full overflow-hidden shadow-2xl ring-4 ring-white/50 bg-white">
+            <img src={logo} alt="CMCRC Logo" className="w-full h-full object-contain p-3" />
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-800 mb-4">
             Welcome to our research club
