@@ -92,6 +92,7 @@ const Footer: React.FC = () => {
         </div>
         <div className="mt-12 border-t border-slate-300 pt-8 text-center">
           <p className="text-base text-slate-500">&copy; {new Date().getFullYear()} CMCRC. All rights reserved.</p>
+          <p className="mt-2 text-sm text-slate-400">Made with <span role="img" aria-label="love">❤️</span> by <span className="font-medium text-slate-500">Prayas</span></p>
         </div>
       </div>
     </footer>
